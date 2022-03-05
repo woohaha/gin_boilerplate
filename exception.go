@@ -17,9 +17,20 @@ func NotFound() *APIException {
 	return newAPIException(http.StatusNotFound, errorCode.NotFound, http.StatusText(http.StatusNotFound))
 }
 
+// Forbidden 禁止訪問
+func Forbidden(message string) *APIException {
+	if message == "" {
+		message = http.StatusText(http.StatusForbidden)
+	}
+	return newAPIException(http.StatusForbidden, errorCode.ForbiddenError, message)
+}
+
 // PermissionError 認證錯誤
-func PermissionError() *APIException {
-	return newAPIException(http.StatusUnauthorized, errorCode.PermissionError, http.StatusText(http.StatusUnauthorized))
+func PermissionError(message string) *APIException {
+	if message == "" {
+		message = http.StatusText(http.StatusUnauthorized)
+	}
+	return newAPIException(http.StatusUnauthorized, errorCode.PermissionError, message)
 }
 
 // UnknownError 未知错误
@@ -33,14 +44,13 @@ func ParameterError(message string) *APIException {
 }
 
 type APIException struct {
-	Code      int    `json:"-"`
-	ErrorCode int    `json:"error_code"`
-	Msg       string `json:"msg"`
-	Request   string `json:"request"`
+	BaseResponse
+	Code    int    `json:"-"`
+	Request string `json:"request"`
 }
 
 func (e *APIException) Error() string {
-	return e.Msg
+	return e.Msg.(string)
 }
 
 func (e *APIException) setRequestURI(r *http.Request) {
@@ -49,8 +59,10 @@ func (e *APIException) setRequestURI(r *http.Request) {
 
 func newAPIException(code int, errorCode int, msg string) *APIException {
 	return &APIException{
-		Code:      code,
-		ErrorCode: errorCode,
-		Msg:       msg,
+		Code: code,
+		BaseResponse: BaseResponse{
+			ErrorCode: errorCode,
+			Msg:       msg,
+		},
 	}
 }

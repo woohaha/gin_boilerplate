@@ -7,4 +7,5 @@ const (
 	UnknownError    = 1002 // 未知错误
 	ParameterError  = 1003 // 参数错误
 	PermissionError = 1004 // 認證错误
+	ForbiddenError  = 1005 // 禁止訪問
 )
